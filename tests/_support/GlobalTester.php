@@ -26,17 +26,19 @@ class GlobalTester extends AcceptanceTester
         if ($firstname == "") {
             $firstname = Credentials::$FIRSTNAME;
         }
+        $G->waitPageLoad();
         try {
-            $G->waitForText("HI, " . strtoupper($firstname), 10, "a.customer-account-menu");
+            $G->waitForText("My Account", 10, 'a[class="nav-link show_popup_login"]');
         } catch (Exception $e) {
-            $G->waitForElementVisible("span.social-login", 30);
-            $G->click("span.social-login");
+            $G->waitForElementClickable('a[class="nav-link show_popup_login"]', 30);
+            $G->click('a[class="nav-link show_popup_login"]');
             $G->wait(5);
-            $G->fillField("#email", $email);
-            $G->fillField("#pass", $password);
-            $G->click("#bt-social-login");
-            $G->waitForText("PLEASE WAIT...", 30, ".mesg-request");
-            $G->waitForText("HI, " . strtoupper($firstname), 30, "a.customer-account-menu");
+            $G->waitForElementVisible('//div[@class = "prpl-login-title" and contains(text(), "Sign in to your account")]');
+            $G->fillField('//input[@id = "prpl-email"]', $email);
+            $G->fillField('//input[@id = "prpl-pass"]', $password);
+            $G->click('//button[@class = "action action-login primary"]');
+            $G->waitAjaxLoad();
+            $G->waitForText("My Account", 10, 'a[class="nav-link show_popup_login"]');
         }
     }
 
@@ -47,20 +49,21 @@ class GlobalTester extends AcceptanceTester
     {
         $G = $this;
         $G->connectJq();
+        $G->waitPageLoad();
         try {
-            $G->waitForElementVisible("span.social-login", 10);
+            $G->waitForText("Sing In", 10, 'a[class="nav-link show_popup_login"]');
         } catch (Exception $e) {
-            $G->waitForElementClickable("a.customer-account-menu");
-            $G->click("a.customer-account-menu");
-            $G->waitForElementVisible("li.last a");
-            $G->click("li.last a");
-
-            $G->waitForElementVisible("//h1//span[contains(text(),'You are signed out')]"); //Check text on logoutSuccess page
-            $G->seeCurrentUrlEquals('/customer/account/logoutSuccess/'); //Check 'logout success' page URL
-            $G->waitForElementNotVisible("//h1//span[contains(text(),'You are signed out')]", 30); //Check that this element is disappear
+            $G->waitForText("My Account", 10, 'a[class="nav-link show_popup_login"]');
+            $G->waitForElementClickable('a[class="nav-link show_popup_login"]');
+            $G->click('a[class="nav-link show_popup_login"]');
             $G->waitPageLoad();
-            $G->waitForElementVisible("//div[contains(@class,'login')]//a[contains(@class,'login')]", 30); //Wait guest 'My Account' section
-            $G->seeCurrentUrlEquals('/'); //Check homepage URL
+            $G->waitForElementClickable('//li[@class="nav item"]/a[contains(text(), "Sign Out")]');
+            $G->click('//li[@class="nav item"]/a[contains(text(), "Sign Out")]');
+            $G->waitPageLoad();
+            $G->waitForElementVisible('//h1/span[contains(text(), "You are signed out")]', 30);
+            $G->wait(5);
+            $G->waitPageLoad();
+            $G->seeCurrentUrlEquals('/');
         }
     }
 
@@ -88,17 +91,23 @@ class GlobalTester extends AcceptanceTester
             $lastname = Credentials::$LASTNAME;
         }
         $G->connectJq();
-        $G->waitForElementVisible(".create-account-popup", 30);
-        $G->click(".create-account-popup");
-        $G->waitForElementVisible('#bt-social-create');
-        $G->fillField("#firstname", $firstname);
-        $G->fillField("#lastname", $lastname);
-        $G->fillField("#bss_email_address", $email);
-        $G->fillField("#password", $password);
-        $G->click("#bt-social-create");
-        $G->waitForText('PLEASE WAIT...', 30, ".mesg-request");
-        $G->waitForElementNotVisible('#bt-social-create', 10);
-        $G->waitForText("HI, " . strtoupper($firstname), 30, "a.customer-account-menu");
+        $G->waitPageLoad();
+        $G->waitForText("Sign In", 10, 'a[class="nav-link show_popup_login"]');
+        $G->waitForElementClickable('a[class="nav-link show_popup_login"]', 30);
+        $G->click('a[class="nav-link show_popup_login"]');
+        $G->wait(3);
+        $G->waitForElementVisible('//div[@class = "prpl-login-title" and contains(text(), "Sign in to your account")]');
+        $G->waitForElementClickable('//span[contains(text(), "Create an account")]/ancestor::a');
+        $G->click('//span[contains(text(), "Create an account")]/ancestor::a');
+        $G->waitForElementVisible('//div[@class = "prpl-login-title" and contains(text(), "Create New Customer Account")]');
+        $G->fillField('//input[@name = "firstname"]', $firstname);
+        $G->fillField('//input[@name = "lastname"]', $lastname);
+        $G->fillField('//input[@name = "email"]', $email);
+        $G->fillField('//input[@name = "telephone"]', Credentials::$PHONE);
+        $G->fillField('//input[@name = "password" and @placeholder = "Password" and not(@id="prpl-pass")]', $password);
+        $G->click('//button[@class = "action submit primary"]');
+        $G->waitAjaxLoad();
+        $G->waitForText("My Account", 10, 'a[class="nav-link show_popup_login"]');
         return ['firstname' => $firstname, 'email' => $email, 'password' => $password];
     }
 

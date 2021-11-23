@@ -5,7 +5,7 @@ namespace Page;
 class Credentials
 {
 
-    public static $URL = "https://www.bendonlingerie.com.au/";
+    public static $URL = "https://www.beaurepaires.com.au/";
     public static $EMAIL = 'automation-overdose@test.com';
     public static $PASSWORD = 'Test1234';
     public static $FIRSTNAME = 'Automation';
@@ -17,3 +17,4 @@ class Credentials
     public static $COUPON = 'Test';
 
 }
+
