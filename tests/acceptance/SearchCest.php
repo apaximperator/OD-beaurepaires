@@ -10,7 +10,7 @@ class SearchCest
     public function instantSearch(GlobalTester $G)
     {
         $G->amOnPage("/");
-        $G->instantSearchByText('bra');
+        $G->instantSearchByText('CONTIVANCONTACT 100');
         $G->instantSearchEmptyResult();
     }
 

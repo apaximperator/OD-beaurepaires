@@ -119,9 +119,9 @@ class GlobalTester extends AcceptanceTester
     {
         $G = $this;
         $G->connectJq();
-        $G->waitForElementVisible("#webChannel .title", $time);
-        $G->click("div[data-wps-popup-close]");
-        $G->waitForElementNotVisible("#webChannel .title", 5);
+        $G->waitForElementVisible(".region-modal__title", $time);
+        $G->click(".region-location__outside-link");
+        $G->waitForElementNotVisible(".region-modal__title", 5);
     }
 
 
@@ -133,11 +133,11 @@ class GlobalTester extends AcceptanceTester
     {
         $G = $this;
         $G->connectJq();
-        $G->waitForElementVisible("#search");
-        $G->click("#search");
-        $G->fillField("#search", $searchString);
-        $G->waitForElementClickable("#klevuSearchSuggest ul li a", 10);
-        $G->click("#klevuSearchSuggest ul li a");
+        $G->waitForElementVisible("[class='block block-title']");
+        $G->clickOnElementByCssSelector('[class="block block-title"]');
+        $G->waitForElementVisible("input#search");
+        $G->fillField("input#search", $searchString);
+
         $G->amOnPage("/");
     }
 

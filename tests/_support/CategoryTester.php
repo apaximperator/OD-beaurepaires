@@ -13,15 +13,18 @@ class CategoryTester extends GlobalTester
         $C = $this;
         $brandCategoryWithoutProducts = true;
         while ($brandCategoryWithoutProducts) {
-            $C->moveMouseOver("//span[contains(text(),'Brand')]/ancestor::a");
-            $BrandCategoryCount = $C->getElementsCountByCssSelector('.menu-brand-block-content div .pagebuilder-column');
-            $BrandCategoryNumber = rand(0, $BrandCategoryCount - 1);
-            $BrandLink = $C->executeJS('return document.querySelectorAll(".menu-brand-block-content div .pagebuilder-column figure a")[' . $BrandCategoryNumber . '].getAttribute("href");');
-            $C->executeJS('document.querySelectorAll(".menu-brand-block-content div .pagebuilder-column figure a")[' . $BrandCategoryNumber . '].click();');
+            $C->moveMouseOver('//a[@id="ui-id-'.rand(2, 3).'"]');
+            $C->waitForElementClickable('li.hover div.brands-logo a');
+            $C->wait(2);
+            $BrandCategoryCount = $C->getElementsCountByCssSelector('li.hover div.brands-logo a');
+            $BrandCategoryNumber = rand(1, $BrandCategoryCount + 1);
+            $BrandLink = $C->grabAttributeFrom('//*[contains(@class, "hover")]//div[@class="brands-item"]['.$BrandCategoryNumber.']//a', 'href');
+            $BrandLink = str_replace(Credentials::$URL, '', $BrandLink);
+            $C->click('//*[contains(@class, "hover")]//div[@class="brands-item"]['.$BrandCategoryNumber.']//a');
             $C->waitPageLoad();
             $C->seeInCurrentUrl($BrandLink);
             try {
-                $C->seeElement("//div[@class='product-item-info']");
+                $C->seeElement('//div[@class="product actions product-item-actions"]/div/a');
                 $brandCategoryWithoutProducts = false;
             } catch (Exception $e) {
                 $brandCategoryWithoutProducts = true;
@@ -38,9 +41,10 @@ class CategoryTester extends GlobalTester
         $C->connectJq();
         $categoryWithoutProducts = true;
         while ($categoryWithoutProducts) {
-            $C->openRandomCategoryBySelector('div>div.menu-column li.parent>a');
+            $C->click('//a[@id="ui-id-'.rand(2, 3).'"]');
+            $C->waitPageLoad();
             try {
-                $C->seeElement(".bss-bt-quickview");
+                $C->seeElement('//div[@class="product actions product-item-actions"]/div/a');
                 $categoryWithoutProducts = false;
             } catch (Exception $e) {
                 $categoryWithoutProducts = true;
@@ -57,9 +61,21 @@ class CategoryTester extends GlobalTester
         $C->connectJq();
         $categoryWithoutProducts = true;
         while ($categoryWithoutProducts) {
-            $C->openRandomCategoryBySelector('div>div.menu-column li ul a');
+            $nav = rand(2, 4);
+            $C->moveMouseOver('//a[@id="ui-id-'.$nav.'"]');
+            $C->wait(2);
+            if ($nav === 4){
+                $C->waitForElementClickable('//a[@id="ui-id-4"]');
+                $C->click('//a[@id="ui-id-4"]');
+            }
+            else {
+                $C->waitForElementClickable('//*[contains(@class, "hover")]//div[@class="bottom-links"]//a[contains(text(), "All")]');
+                $C->click('//*[contains(@class, "hover")]//div[@class="bottom-links"]//a[contains(text(), "All")]');
+            }
+            $C->waitPageLoad();
+            $C->wait(2);
             try {
-                $C->seeElement(".bss-bt-quickview");
+                $C->seeElement('//div[@class="product actions product-item-actions"]/div/a');
                 $categoryWithoutProducts = false;
             } catch (Exception $e) {
                 $categoryWithoutProducts = true;
@@ -67,22 +83,22 @@ class CategoryTester extends GlobalTester
         }
     }
 
-    /**
-     * @param string $selector
-     */
-    private function openRandomCategoryBySelector(string $selector)
-    {
-        $C = $this;
-        $C->connectJq();
-        $C->moveMouseOver("//span[contains(text(),'Women')]/ancestor::a");
-        $CategoryCount = $C->getElementsCountByCssSelector($selector);
-        $CategoryNumber = rand(0, $CategoryCount - 1);
-        $CategoryLink = $C->executeJS('return document.querySelectorAll("' . $selector . '")[' . $CategoryNumber . '].getAttribute("href");');
-        $CategoryLink = str_replace(Credentials::$URL, '', $CategoryLink);
-        $C->executeJS('document.querySelectorAll("' . $selector . '")[' . $CategoryNumber . '].click();');
-        $C->waitPageLoad();
-        $C->seeInCurrentUrl($CategoryLink);
-    }
+//    /**
+//     * @param string $selector
+//     */
+//    private function openRandomCategoryBySelector(string $selector)
+//    {
+//        $C = $this;
+//        $C->connectJq();
+//        $C->moveMouseOver("//span[contains(text(),'Women')]/ancestor::a");
+//        $CategoryCount = $C->getElementsCountByCssSelector($selector);
+//        $CategoryNumber = rand(0, $CategoryCount - 1);
+//        $CategoryLink = $C->executeJS('return document.querySelectorAll("' . $selector . '")[' . $CategoryNumber . '].getAttribute("href");');
+//        $CategoryLink = str_replace(Credentials::$URL, '', $CategoryLink);
+//        $C->executeJS('document.querySelectorAll("' . $selector . '")[' . $CategoryNumber . '].click();');
+//        $C->waitPageLoad();
+//        $C->seeInCurrentUrl($CategoryLink);
+//    }
 
     /**
      * @throws Exception
@@ -91,14 +107,14 @@ class CategoryTester extends GlobalTester
     {
         $C = $this;
         $C->connectJq();
-        $C->waitForElementVisible("#sorter", 10);
-        $sortCount = $C->getElementsCountByCssSelector("#sorter>option");
-        for ($optionByIndex = 0; $optionByIndex < $sortCount / 2; $optionByIndex++) {
-            $sortByOption = trim($C->executeJS("return document.querySelectorAll(\"#sorter option\")[$optionByIndex].innerText"));
-            $C->selectOption("//select[@id='sorter']", $sortByOption);
+        $C->waitForElementVisible('//select[@class="ais-SortBy-select"]', 10);
+        $sortCount = $C->getElementsCountByCssSelector('select.ais-SortBy-select>option');
+        for ($optionByIndex = 1; $optionByIndex < $sortCount; $optionByIndex++) {
+            $sortByOption = $C->grabTextFrom('//select[@class="ais-SortBy-select"]/option['.$optionByIndex.']');
+            $C->selectOption('//select[@class="ais-SortBy-select"]', $sortByOption);
             $C->waitPageLoad();
             $C->wait(1);
-            $C->waitForElementVisible("select[id='sorter'] option:nth-of-type(" . ($optionByIndex + 1) . ")[selected='selected']", 10);
+            $C->seeOptionIsSelected('//select[@class="ais-SortBy-select"]', $sortByOption);
         }
     }
 
@@ -143,23 +159,23 @@ class CategoryTester extends GlobalTester
         $C->waitForElementNotVisible("a.action.clear.filter-clear", 10);
     }
 
-    /**
-     *
-     */
-    public function openRandomCategoryWithPagination()
-    {
-        $C = $this;
-        $C->connectJq();
-        $categoryWithoutProducts = true;
-        while ($categoryWithoutProducts) {
-            $C->openRandomCategoryBySelector('div>div.menu-column li ul a');
-            try {
-                $C->seeElement(".bss-bt-quickview");
-                $C->seeElement(".pages-item-next a");
-                $categoryWithoutProducts = false;
-            } catch (Exception $e) {
-                $categoryWithoutProducts = true;
-            }
-        }
-    }
+//    /**
+//     *
+//     */
+//    public function openRandomCategoryWithPagination()
+//    {
+//        $C = $this;
+//        $C->connectJq();
+//        $categoryWithoutProducts = true;
+//        while ($categoryWithoutProducts) {
+//            $C->openRandomCategoryBySelector('div>div.menu-column li ul a');
+//            try {
+//                $C->seeElement(".bss-bt-quickview");
+//                $C->seeElement(".pages-item-next a");
+//                $categoryWithoutProducts = false;
+//            } catch (Exception $e) {
+//                $categoryWithoutProducts = true;
+//            }
+//        }
+//    }
 }
