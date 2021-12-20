@@ -5,21 +5,21 @@ use Page\Credentials;
 class ProductTester extends GlobalTester
 {
 
-    /**
-     * @throws Exception
-     */
-    public function openQuickViewForRandomProduct()
-    {
-        $P = $this;
-        $productsCount = $P->getElementsCountByCssSelector('a.product span.product-image-container:first-child span div.bss-bt-quickview a');
-        $randomProductNumber = rand(0, $productsCount - 1);
-        $P->executeJS('document.querySelectorAll("a.product span.product-image-container:first-child span div.bss-bt-quickview a")[' . $randomProductNumber . '].click()');
-        $P->waitForElementNotVisible('.mfp-preloader', 10);
-        $P->switchToIFrame('.mfp-iframe');
-        $P->waitForElementClickable('#product-addtocart-button', 10);
-        $P->seeElement('#product-addtocart-button');
-        $P->switchToIFrame();
-    }
+//    /**
+//     * @throws Exception
+//     */
+//    public function openQuickViewForRandomProduct()
+//    {
+//        $P = $this;
+//        $productsCount = $P->getElementsCountByCssSelector('a.product span.product-image-container:first-child span div.bss-bt-quickview a');
+//        $randomProductNumber = rand(0, $productsCount - 1);
+//        $P->executeJS('document.querySelectorAll("a.product span.product-image-container:first-child span div.bss-bt-quickview a")[' . $randomProductNumber . '].click()');
+//        $P->waitForElementNotVisible('.mfp-preloader', 10);
+//        $P->switchToIFrame('.mfp-iframe');
+//        $P->waitForElementClickable('#product-addtocart-button', 10);
+//        $P->seeElement('#product-addtocart-button');
+//        $P->switchToIFrame();
+//    }
 
     /**
      * @throws Exception
@@ -28,12 +28,12 @@ class ProductTester extends GlobalTester
     {
         $P = $this;
         $P->waitPageLoad(10);
-        $productsCount = $P->getElementsCountByCssSelector("li.item.product.product-item");
+        $productsCount = $P->getElementsCountByCssSelector('a[class ="action primary black"]');
         $randomProductNumber = rand(1, $productsCount);
-        $P->waitForElementClickable("//li[@class='item product product-item'][$randomProductNumber]//a[@class='product-item-link']", 10);
-        $productLink = $P->grabAttributeFrom("//li[@class='item product product-item'][$randomProductNumber]//a[@class='product-item-link']", 'href');
+        $P->waitForElementClickable("//a[@class='action primary black'][$randomProductNumber]", 10);
+        $productLink = $P->grabAttributeFrom("//a[@class='action primary black'][$randomProductNumber]", 'href');
         $productLink = str_replace(Credentials::$URL, '', $productLink);
-        $P->click("//*[@class='item product product-item'][$randomProductNumber]//a[@class='product-item-link']");
+        $P->click("//a[@class='action primary black'][$randomProductNumber]");
         $P->waitPageLoad();
         $P->seeInCurrentUrl($productLink);
         $P->waitForElementVisible("h1.page-title", 30);
@@ -46,20 +46,22 @@ class ProductTester extends GlobalTester
     {
         $P = $this;
         $P->waitPageLoad();
-        $P->waitForElementVisible('select.super-attribute-select', 10);
-        $P->seeElement('select.super-attribute-select');
-        $selectCount = $P->getElementsCountByCssSelector("select.super-attribute-select"); //Get elements count by selector
-        for ($selectByIndex = 1; $selectByIndex <= $selectCount; $selectByIndex++) { //Start cycle for select
-            $P->seeElement('(//select[contains(@id,"attribute")])[' . $selectByIndex . ']'); //Check select by index availability
-            $optionValueCount = $this->getElementsCountByCssSelector('select.super-attribute-select:nth-child(' . $selectByIndex . ')>option');
-            $optionValueNumber = rand(1, $optionValueCount);
-            $optionValue = $P->grabTextFrom('(//select[contains(@id,"attribute")])[' . $selectByIndex . ']//option[' . $optionValueNumber . ']'); //Writing variable with desired option
-            if ($optionValue === "Select Size") {
-                $optionValueNumber += $optionValueNumber;
+        if (!$P->canSeeElement('div[class="field qty"]')) {
+            $P->waitForElementVisible('select.super-attribute-select', 10);
+            $P->seeElement('select.super-attribute-select');
+            $selectCount = $P->getElementsCountByCssSelector("select.super-attribute-select"); //Get elements count by selector
+            for ($selectByIndex = 1; $selectByIndex <= $selectCount; $selectByIndex++) { //Start cycle for select
+                $P->seeElement('(//select[contains(@id,"attribute")])[' . $selectByIndex . ']'); //Check select by index availability
+                $optionValueCount = $this->getElementsCountByCssSelector('select.super-attribute-select:nth-child(' . $selectByIndex . ')>option');
+                $optionValueNumber = rand(1, $optionValueCount);
                 $optionValue = $P->grabTextFrom('(//select[contains(@id,"attribute")])[' . $selectByIndex . ']//option[' . $optionValueNumber . ']'); //Writing variable with desired option
+                if ($optionValue === "Select Size") {
+                    $optionValueNumber += $optionValueNumber;
+                    $optionValue = $P->grabTextFrom('(//select[contains(@id,"attribute")])[' . $selectByIndex . ']//option[' . $optionValueNumber . ']'); //Writing variable with desired option
+                }
+                $P->selectOption('(//select[contains(@id,"attribute")])[' . $selectByIndex . ']', $optionValue); //Select desired option
+                $P->see($optionValue, '(//select[contains(@id,"attribute")])[' . $selectByIndex . ']');
             }
-            $P->selectOption('(//select[contains(@id,"attribute")])[' . $selectByIndex . ']', $optionValue); //Select desired option
-            $P->see($optionValue, '(//select[contains(@id,"attribute")])[' . $selectByIndex . ']');
         }
     }
 
