@@ -13,13 +13,14 @@ class ProductCest
     {
         $C->amOnPage('/');
         $C->waitPageLoad(10);
-        $C->closePopup();
+        $C->closePopup(10);
         $C->openRandomNotEmptyPLP();
         $P->openRandomProduct();
         $P->selectRandomOption();
         $P->selectRandomQTY();
+        $P->selectRandomStore();
         $P->addProductToCart();
-        $Cart->deleteProductFromCart();
+//        $Cart->deleteProductFromCart();
     }
 
 }

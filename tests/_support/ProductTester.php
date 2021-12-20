@@ -5,22 +5,6 @@ use Page\Credentials;
 class ProductTester extends GlobalTester
 {
 
-//    /**
-//     * @throws Exception
-//     */
-//    public function openQuickViewForRandomProduct()
-//    {
-//        $P = $this;
-//        $productsCount = $P->getElementsCountByCssSelector('a.product span.product-image-container:first-child span div.bss-bt-quickview a');
-//        $randomProductNumber = rand(0, $productsCount - 1);
-//        $P->executeJS('document.querySelectorAll("a.product span.product-image-container:first-child span div.bss-bt-quickview a")[' . $randomProductNumber . '].click()');
-//        $P->waitForElementNotVisible('.mfp-preloader', 10);
-//        $P->switchToIFrame('.mfp-iframe');
-//        $P->waitForElementClickable('#product-addtocart-button', 10);
-//        $P->seeElement('#product-addtocart-button');
-//        $P->switchToIFrame();
-//    }
-
     /**
      * @throws Exception
      */
@@ -28,12 +12,13 @@ class ProductTester extends GlobalTester
     {
         $P = $this;
         $P->waitPageLoad(10);
-        $productsCount = $P->getElementsCountByCssSelector('a[class ="action primary black"]');
+        $productsCount = $P->getElementsCountByCssSelector('a[class ="result product-item-link"]');
         $randomProductNumber = rand(1, $productsCount);
-        $P->waitForElementClickable("//a[@class='action primary black'][$randomProductNumber]", 10);
-        $productLink = $P->grabAttributeFrom("//a[@class='action primary black'][$randomProductNumber]", 'href');
+        $P->waitForElementClickable("//a[@class='result product-item-link' and @data-position='$randomProductNumber']", 10);
+        $productLink = $P->grabAttributeFrom("//a[@class='result product-item-link' and @data-position='$randomProductNumber']", 'href');
         $productLink = str_replace(Credentials::$URL, '', $productLink);
-        $P->click("//a[@class='action primary black'][$randomProductNumber]");
+        $P->wait(2);
+        $P->click("//a[@class='result product-item-link' and @data-position='$randomProductNumber']");
         $P->waitPageLoad();
         $P->seeInCurrentUrl($productLink);
         $P->waitForElementVisible("h1.page-title", 30);
@@ -46,8 +31,8 @@ class ProductTester extends GlobalTester
     {
         $P = $this;
         $P->waitPageLoad();
-        if (!$P->canSeeElement('div[class="field qty"]')) {
-            $P->waitForElementVisible('select.super-attribute-select', 10);
+        $P->wait(2);
+        if ($P->tryToDontSeeElement('div[class="field qty"]')) {
             $P->seeElement('select.super-attribute-select');
             $selectCount = $P->getElementsCountByCssSelector("select.super-attribute-select"); //Get elements count by selector
             for ($selectByIndex = 1; $selectByIndex <= $selectCount; $selectByIndex++) { //Start cycle for select
@@ -81,6 +66,25 @@ class ProductTester extends GlobalTester
         $P->see($QTYValue, '(//select[contains(@id,"qty")])');
     }
 
+    /**
+     * @throws Exception
+     */
+    public function selectRandomStore()
+    {
+        $P = $this;
+        if ($P->tryToSeeElement("//div[@class='link-trigger-amlocator']/a[@title='Find your store']")) {
+            $P->waitForElementClickable("//div[@class='link-trigger-amlocator']/a[@title='Find your store']", 10);
+            $P->click("//div[@class='link-trigger-amlocator']/a[@title='Find your store']");
+            $P->waitAjaxLoad();
+            $storeCount = $this->getElementsCountByCssSelector('a.amlocator-link');
+            $storeNumber = rand(1, $storeCount + 1);
+            $P->click("//div[@class='amlocator-store-desc'][$storeNumber]//a[@class='amlocator-link']");
+            $P->waitForElementClickable("//button[@class='action-cancel action-cancel-new']", 10);
+            $P->click("//button[@class='action-cancel action-cancel-new']");
+            $P->waitAjaxLoad();
+
+        }
+    }
 
     /**
      * @throws Exception
@@ -88,18 +92,18 @@ class ProductTester extends GlobalTester
     public function addProductToCart()
     {
         $P = $this;
-        $productCountBefore = $P->grabTextFrom('a.showcart span.counter-number');
+        $productCountBefore = $P->grabTextFrom('span.counter-number');
         $P->waitForElementClickable('#product-addtocart-button', 10);
         $productTitle = $P->executeJS("return document.querySelector('h1.page-title>span').textContent");
-        $productQTY = $P->grabTextFrom('#select2-qty-container');
+        $productQTY = $P->grabTextFrom('//select[contains(@id,"qty")]');
         $P->click("#product-addtocart-button");
-        $P->waitForText('ADDED', 10, '#product-addtocart-button span');
-        $P->see('ADDED', '#product-addtocart-button span');
+        $P->waitForText('Product Added', 10, '#product-addtocart-button span');
+        $P->see('Product Added', '#product-addtocart-button span');
         $P->waitForElementNotVisible('.loading-mask', 10);
-        $P->waitForElementVisible('a.showcart span.counter-number', 10);
-        $productCountAfter = $P->grabTextFrom('a.showcart span.counter-number');
+        $P->waitForElementVisible('span.counter-number', 10);
+        $productCountAfter = $P->grabTextFrom('span.counter-number');
         if ((int)$productCountAfter === (int)$productCountBefore + (int)$productQTY) {
-            $P->click('a.showcart');
+            $P->click("button[class='action showcart primary blue']");
             $P->waitForElementVisible('.product-item__name a', 10);
             $P->see($productTitle, '.product-item__name a');
             $P->click('#btn-minicart-close');

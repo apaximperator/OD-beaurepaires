@@ -119,9 +119,12 @@ class GlobalTester extends AcceptanceTester
     {
         $G = $this;
         $G->connectJq();
-        $G->waitForElementVisible(".region-modal__title", $time);
-        $G->click(".region-location__outside-link");
-        $G->waitForElementNotVisible(".region-modal__title", 5);
+        $G->wait($time);
+        if ($this->tryToSeeElement('.region-modal__title')){
+            $G->waitForElementVisible(".region-modal__title", $time);
+            $G->click(".region-location__outside-link");
+            $G->waitForElementNotVisible(".region-modal__title", 5);
+        }
     }
 
 
@@ -137,8 +140,9 @@ class GlobalTester extends AcceptanceTester
         $G->clickOnElementByCssSelector('[class="block block-title"]');
         $G->waitForElementVisible("input#search");
         $G->fillField("input#search", $searchString);
-
-        $G->amOnPage("/");
+        $G->wait(3);
+        $G->click("//div[@class='aa-suggestion'][1]");
+        $G->wait(5);
     }
 
     /**
