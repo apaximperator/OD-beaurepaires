@@ -115,12 +115,12 @@ class GlobalTester extends AcceptanceTester
      * @param int $time
      * @throws Exception
      */
-    public function closePopup(int $time = 30)
+    public function closePopup(int $time = 10)
     {
         $G = $this;
-        $G->connectJq();
+        $G->waitPageLoad();
         $G->wait($time);
-        if ($this->tryToSeeElement('.region-modal__title')){
+          if ($G->tryToSeeElement('.region-modal__title')){
             $G->waitForElementVisible(".region-modal__title", $time);
             $G->click(".region-location__outside-link");
             $G->waitForElementNotVisible(".region-modal__title", 5);
@@ -135,7 +135,6 @@ class GlobalTester extends AcceptanceTester
     public function instantSearchByText(string $searchString = "test")
     {
         $G = $this;
-        $G->connectJq();
         $G->waitForElementVisible("[class='block block-title']");
         $G->clickOnElementByCssSelector('[class="block block-title"]');
         $G->waitForElementVisible("input#search");
@@ -152,14 +151,13 @@ class GlobalTester extends AcceptanceTester
     public function searchByText(string $searchString = "test")
     {
         $G = $this;
-        $G->connectJq();
-        $G->waitForElementVisible("#search");
-        $G->click("#search");
-        $G->fillField("#search", $searchString);
-        $G->pressKey('#search', WebDriverKeys::ENTER);
-        $G->waitForText("Search results for: '$searchString'", 10, "span.base");
-        $G->see("Search results for: '$searchString'", "span.base");
-        $G->amOnPage("/");
+        $G->waitForElementVisible("[class='block block-title']");
+        $G->clickOnElementByCssSelector('[class="block block-title"]');
+        $G->waitForElementVisible("input#search");
+        $G->fillField("input#search", $searchString);
+        $G->wait(3);
+        $G->click("//div[@id='autocomplete-products-footer'] ");
+        $G->wait(5);
     }
 
     /**
@@ -169,12 +167,13 @@ class GlobalTester extends AcceptanceTester
     {
         $G = $this;
         $G->connectJq();
-        $G->waitForElementVisible("#search");
-        $G->click("#search");
-        $G->fillField("#search", "qwerreqwerqwer");
-        $G->waitForText("Please try another search term...", 30, ".klevuNoResults-message");
-        $G->see('Please try another search term...', ".klevuNoResults-message");
-        $G->amOnPage("/");
+        $G->waitForElementVisible("[class='block block-title']");
+        $G->clickOnElementByCssSelector('[class="block block-title"]');
+        $G->waitForElementVisible("input#search");
+        $G->fillField("input#search", 'qwerreqwerqwer');
+        $G->wait(3);
+        $G->waitForText('No products for query "qwerreqwerqwer"', 30, "//div[@class = 'title']");
+        $G->see('No products for query "qwerreqwerqwer"', "//div[@class = 'title']");
     }
 
     /**
@@ -184,13 +183,16 @@ class GlobalTester extends AcceptanceTester
     {
         $G = $this;
         $G->connectJq();
-        $G->waitForElementVisible("#search");
-        $G->click("#search");
-        $G->fillField("#search", "qwerreqwerqwer");
-        $G->pressKey('#search', WebDriverKeys::ENTER);
-        $G->waitForText("Please try another search term...", 30, ".kuNoResults-lp-message");
-        $G->see('Please try another search term...', ".kuNoResults-lp-message");
-        $G->amOnPage("/");
+        $G->waitForElementVisible("[class='block block-title']");
+        $G->clickOnElementByCssSelector('[class="block block-title"]');
+        $G->waitForElementVisible("input#search");
+        $G->fillField("input#search", 'qwerreqwerqwer');
+        $G->wait(3);
+        $G->waitForText('No products for query "qwerreqwerqwer"', 30, "//div[@class = 'title']");
+        $G->see('No products for query "qwerreqwerqwer"', "//div[@class = 'title']");
+        $G->click('//button[@class="action algolia-search"]');
+        $G->waitPageLoad();
+        $G->see('No products for query "qwerreqwerqwer"', "div.no-results>div>b");
     }
 
     /**
