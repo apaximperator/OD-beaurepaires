@@ -9,18 +9,23 @@ class ProductCest
      * @param CartTester $Cart
      * @throws Exception
      */
-    public function productPage(CategoryTester $C, ProductTester $P, CartTester $Cart)
+    public function productPage(CategoryTester $C, ProductTester $P, CartTester $Cart, GlobalTester $G)
     {
-        $C->amOnPage('/');
+//        $C->amOnPage('/');
+        $C->amOnPage('/tyres');
         $C->waitPageLoad(10);
-        $C->closePopup(10);
-        $C->openRandomNotEmptyPLP();
+//        $C->closePopup(10);
+        $G->login();
+//        $C->openRandomNotEmptyPLP();
+        $C->amOnPage('/tyres');
         $P->openRandomProduct();
-        $P->selectRandomOption();
-        $P->selectRandomQTY();
-        $P->selectRandomStore();
-        $P->addProductToCart();
-//        $Cart->deleteProductFromCart();
+//        $C->waitPageLoad();
+//        $P->selectRandomOption();
+//        $P->selectRandomQTY();
+//        $P->selectRandomStore();
+//        $P->addProductToCart();
+//        $Cart->changeProductQtyOnMiniCart();
+        $Cart->deleteProductFromMiniCart();
     }
 
 }

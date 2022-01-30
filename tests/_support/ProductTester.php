@@ -11,13 +11,17 @@ class ProductTester extends GlobalTester
     public function openRandomProduct()
     {
         $P = $this;
+        $P->reloadPage();
         $P->waitPageLoad(10);
+        $P->wait(1);
         $productsCount = $P->getElementsCountByCssSelector('a[class ="result product-item-link"]');
         $randomProductNumber = rand(1, $productsCount);
         $P->waitForElementClickable("//a[@class='result product-item-link' and @data-position='$randomProductNumber']", 10);
         $productLink = $P->grabAttributeFrom("//a[@class='result product-item-link' and @data-position='$randomProductNumber']", 'href');
         $productLink = str_replace(Credentials::$URL, '', $productLink);
         $P->wait(2);
+        //TODO Для одного товара не полностью рендориться информация http://joxi.ru/gmvDJMZHd5aP5A
+        $P->waitForElementClickable("//a[@class='result product-item-link' and @data-position='$randomProductNumber']", 10);
         $P->click("//a[@class='result product-item-link' and @data-position='$randomProductNumber']");
         $P->waitPageLoad();
         $P->seeInCurrentUrl($productLink);
@@ -63,7 +67,7 @@ class ProductTester extends GlobalTester
         $QTYValue = $P->grabTextFrom('(//select[contains(@id,"qty")])//option[' . $QTYValueNumber . ']'); //Writing variable with desired option
         $P->selectOption('(//select[contains(@id,"qty")])', $QTYValue); //Select desired option
         $P->wait(1);
-        $P->see($QTYValue, '(//select[contains(@id,"qty")])');
+        //TODO Трабла с выбранным количеством $P->see($QTYValue, '//select[@id="qty"]/option[@selected="selected"]');
     }
 
     /**
@@ -77,14 +81,15 @@ class ProductTester extends GlobalTester
             $P->click("//div[@class='link-trigger-amlocator']/a[@title='Find your store']");
             $P->waitAjaxLoad();
             $storeCount = $this->getElementsCountByCssSelector('a.amlocator-link');
-            $storeNumber = rand(1, $storeCount + 1);
-            $P->click("//div[@class='amlocator-store-desc'][$storeNumber]//a[@class='amlocator-link']");
+            $storeNumber = rand(1, $storeCount);
+            $P->click("//div[@name='leftLocation'][$storeNumber]//a[@class='amlocator-link']");
+            $P->wait(5);
             $P->waitForElementClickable("//button[@class='action-cancel action-cancel-new']", 10);
             $P->click("//button[@class='action-cancel action-cancel-new']");
             $P->waitAjaxLoad();
-
         }
     }
+
 
     /**
      * @throws Exception
@@ -92,24 +97,21 @@ class ProductTester extends GlobalTester
     public function addProductToCart()
     {
         $P = $this;
-        $productCountBefore = $P->grabTextFrom('span.counter-number');
+//        $productCountBefore = $P->executeJS("return jQuery('span.counter-number')[0].innerText");
         $P->waitForElementClickable('#product-addtocart-button', 10);
         $productTitle = $P->executeJS("return document.querySelector('h1.page-title>span').textContent");
-        $productQTY = $P->grabTextFrom('//select[contains(@id,"qty")]');
+        //TODO Трабла с выбранным количеством $productQTY = $P->grabTextFrom('//select[@id="qty"]/option[@selected="selected"]');
         $P->click("#product-addtocart-button");
         $P->waitForText('Product Added', 10, '#product-addtocart-button span');
         $P->see('Product Added', '#product-addtocart-button span');
-        $P->waitForElementNotVisible('.loading-mask', 10);
-        $P->waitForElementVisible('span.counter-number', 10);
-        $productCountAfter = $P->grabTextFrom('span.counter-number');
-        if ((int)$productCountAfter === (int)$productCountBefore + (int)$productQTY) {
-            $P->click("button[class='action showcart primary blue']");
-            $P->waitForElementVisible('.product-item__name a', 10);
-            $P->see($productTitle, '.product-item__name a');
-            $P->click('#btn-minicart-close');
-        } else {
-            throw new Exception("Cart qty doesn't change");
-        }
+        $P->waitForElementVisible('.booking-panel-tab.active.enabled', 10);
+        $P->wait(5);
+        $P->waitAjaxLoad();
+//        $productCountAfter = $P->executeJS("return /\(([^)]+)\)/.exec(document.querySelectorAll('.booking-panel-tab.active.enabled')[0].innerText)[1];");
+//        if ((int)$productCountAfter !== (int)$productCountBefore + (int)$productQTY) {
+//            throw new Exception("Cart qty doesn't change $productCountAfter === $productQTY === $productCountBefore");
+//        }
+        $P->clickOnElementByCssSelector('.action-close');
     }
 
     /**

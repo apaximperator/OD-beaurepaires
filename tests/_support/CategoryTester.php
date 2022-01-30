@@ -75,7 +75,7 @@ class CategoryTester extends GlobalTester
             $C->waitPageLoad();
             $C->wait(2);
             try {
-                $C->seeElement('//div[@class="product actions product-item-actions"]/div/a');
+                $C->seeElement("//a[@class='result product-item-link' and @data-position='1']");
                 $categoryWithoutProducts = false;
             } catch (Exception $e) {
                 $categoryWithoutProducts = true;

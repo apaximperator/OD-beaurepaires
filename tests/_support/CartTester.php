@@ -10,43 +10,23 @@ class CartTester extends GlobalTester
     {
         $Cart = $this;
         $Cart->waitPageLoad();
-        $cartCountBefore = $Cart->grabTextFrom('a.showcart span.counter-number');
-        $Cart->click('a.showcart');
-        $Cart->waitForElementVisible('.product-item__name a', 10);
-        $cartProductQTY = $Cart->grabTextFrom('.select2-selection__rendered');
-        $Cart->selectOption('select.cart-item-qty', (int)$cartProductQTY + 1);
-        $Cart->waitForElementClickable("button.update-cart-item", 10);
-        $Cart->click("button.update-cart-item");
-        $Cart->see(((int)$cartProductQTY + 1), ".select2-selection__rendered");
-        $Cart->click('#btn-minicart-close');
+        $productCountBefore = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
+        $Cart->waitForElementVisible("//button[@class='action showcart primary blue']", 10);
+        $Cart->click("//button[@class='action showcart primary blue']");
+        $Cart->waitForElementVisible("//strong[@class='product-item-name']/a", 10);
+        $cartProductQTY = $Cart->grabAttributeFrom('//select[@class="item-qty cart-item-qty minicart-product__qty-input"]', 'data-item-qty');
+        $QTYValueCount = $Cart->getElementsCountByCssSelector('select#qty>option');
+        $QTYValueNumber = rand(1, $QTYValueCount);
+        $Cart->selectOption('//select[@class="item-qty cart-item-qty minicart-product__qty-input"]', $QTYValueNumber);
+        $Cart->waitForElementClickable('//button[@class="update-cart-item minicart-product__update-btn"]', 10);
+        $Cart->click('//button[@class="update-cart-item minicart-product__update-btn"]');
         $Cart->wait(3);
-        $cartCountAfter = $Cart->grabTextFrom('a.showcart span.counter-number');
-        if ((int)($cartCountBefore + 1) !== (int)$cartCountAfter) {
-            throw new Exception("QTY doesn't change");
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function changeProductQtyOnCart()
-    {
-        $Cart = $this;
-        $Cart->waitPageLoad();
-        $cartCountBefore = $Cart->grabTextFrom('a.showcart span.counter-number');
-        $Cart->click('a.showcart');
-        $Cart->waitForElementVisible('.product-item__name a', 10);
-        $Cart->waitForElementClickable('#top-cart-btn-checkout', 10);
-        $Cart->click("#top-cart-btn-checkout");
-        $Cart->waitPageLoad();
-        $Cart->waitForElementVisible('.product-item-name', 10);
-        $cartProductQTY = $Cart->executeJS('return document.querySelectorAll(".select2-selection__rendered")[0].textContent');
-        $Cart->selectOption('select.input-text.qty', ((int)$cartProductQTY + 1));
-        $Cart->waitAjaxLoad(10);
-        $Cart->see(((int)$cartProductQTY + 1), ".select2-selection__rendered");
+        $cartProductQTYNew = $Cart->grabAttributeFrom('//select[@class="item-qty cart-item-qty minicart-product__qty-input"]', 'data-item-qty');
+        $Cart->waitForElementClickable('//button[@class="action-close"]', 10);
+        $Cart->click('//button[@class="action-close"]');
         $Cart->wait(3);
-        $cartCountAfter = $Cart->grabTextFrom('a.showcart span.counter-number');
-        if ((int)($cartCountBefore + 1) !== (int)$cartCountAfter) {
+        $cartCountAfter = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
+        if ((int)($cartCountAfter) !== (int)($productCountBefore - ($cartProductQTY - $cartProductQTYNew))) {
             throw new Exception("QTY doesn't change");
         }
     }
@@ -58,18 +38,26 @@ class CartTester extends GlobalTester
     {
         $Cart = $this;
         $Cart->waitPageLoad();
-        $cartCountBefore = $Cart->grabTextFrom('a.showcart span.counter-number');
-        $Cart->click('a.showcart');
-        $Cart->waitForElementVisible('.product-item__name a', 10);
-        $cartProductCount = $Cart->grabTextFrom('.select2-selection__rendered');
-        $Cart->click('.action.delete');
-        $Cart->waitForElementClickable(".action-primary.action-accept", 10);
-        $Cart->click(".action-primary.action-accept");
-        $Cart->waitForText("YOUR CART IS EMPTY", 10, ".subtitle.empty");
-        $Cart->click('#btn-minicart-close');
-        $cartCountAfter = $Cart->grabTextFrom('a.showcart span.counter-number');
-        if ((int)$cartCountBefore - (int)$cartProductCount !== (int)$cartCountAfter) {
-            throw new Exception("QTY not correct");
+        $cartCountBefore = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
+        $Cart->waitForElementVisible("//button[@class='action showcart primary blue']", 10);
+        $Cart->click("//button[@class='action showcart primary blue']");
+        try {
+            $Cart->see("Shop and add tyres, wheels, or a battery to your fitment booking", ".minicart-empty__text");
+        } catch (Exception $e) {
+            $Cart->waitForElementVisible("//strong[@class='product-item-name']/a", 10);
+            $Cart->waitForElementClickable('//button[@class="action delete minicart-product__remove-btn"]', 10);
+            $Cart->click('//button[@class="action delete minicart-product__remove-btn"]');
+            $Cart->waitForElementClickable('//button[@class="action  primary action-accept"]', 10);
+            $Cart->click('//button[@class="action  primary action-accept"]');
+            $Cart->waitAjaxLoad();
+            $Cart->waitForText("Shop and add tyres, wheels, or a battery to your fitment booking", 10, ".minicart-empty__text");
+            $Cart->waitForElementClickable('//button[@class="action-close"]', 10);
+            $Cart->click('//button[@class="action-close"]');
+            $Cart->wait(3);
+            $cartCountAfter = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
+            if ((int)$cartCountBefore !== (int)$cartCountAfter) {
+                throw new Exception("QTY not correct");
+            }
         }
     }
 
@@ -95,55 +83,7 @@ class CartTester extends GlobalTester
             }
         }
         $Cart->see('YOUR CART IS EMPTY', ".subtitle.empty"); //Check that there is no 'YOUR CART IS EMPTY' text
-        $Cart->click('#btn-minicart-close');
-        $Cart->waitForElementNotVisible("//div[@class='item']//span[@class='counter qty']"); //Check than cart counter is not visible
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function deleteProductFromCart()
-    {
-        $Cart = $this;
-        $Cart->waitPageLoad();
-        $cartCountBefore = $Cart->grabTextFrom('a.showcart span.counter-number');
-        $Cart->click('a.showcart');
-        $Cart->waitForElementVisible('.product-item__name a', 10);
-        $cartProductQTY = $Cart->executeJS('return document.querySelectorAll(".select2-selection__rendered")[0].textContent');
-        $Cart->click("#top-cart-btn-checkout");
-        $Cart->waitPageLoad();
-        $Cart->waitForElementVisible('.product-item-name', 10);
-        $Cart->click('.action.action-delete');
-        $Cart->waitForText("Your Cart is Empty", 10, ".page-title");
-        $cartCountAfter = $Cart->grabTextFrom('a.showcart span.counter-number');
-        if ((int)$cartCountBefore - (int)$cartProductQTY !== (int)$cartCountAfter) {
-            throw new Exception("QTY not correct");
-        }
-    }
-
-
-    /**
-     * @throws Exception
-     */
-    public function removeAllProductsFromCart() //Cycle with 'empty cart' check for remove all products from cart
-    {
-        $Cart = $this;
-        $Cart->waitPageLoad();
-        $Cart->click('a.showcart');
-        $Cart->click("#top-cart-btn-checkout");
-        $Cart->waitPageLoad();
-        $cartIsNotEmpty = true; //Creating a variable for an empty cart
-        while ($cartIsNotEmpty) { //Start cycle for clear cart
-            try {
-                $Cart->dontSee('Your Cart is Empty', ".page-title");
-                $Cart->click("(//a[@class='action action-delete'])[1]"); //Remove first product from cart
-                $cartIsNotEmpty = true; //Cart is not empty - false
-            } catch (Exception $e) {
-                $cartIsNotEmpty = false; //Cart is not empty - true
-            }
-        }
-        $Cart->see('Your Cart is Empty', ".page-title");
-        $Cart->waitForElementNotVisible("//div[@class='item']//span[@class='counter qty']");
+        $Cart->clickOnElementByCssSelector('.action-close');
     }
 
     /**
