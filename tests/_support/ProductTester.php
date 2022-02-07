@@ -76,17 +76,27 @@ class ProductTester extends GlobalTester
     public function selectRandomStore()
     {
         $P = $this;
-        if ($P->tryToSeeElement("//div[@class='link-trigger-amlocator']/a[@title='Find your store']")) {
-            $P->waitForElementClickable("//div[@class='link-trigger-amlocator']/a[@title='Find your store']", 10);
-            $P->click("//div[@class='link-trigger-amlocator']/a[@title='Find your store']");
-            $P->waitAjaxLoad();
-            $storeCount = $this->getElementsCountByCssSelector('a.amlocator-link');
-            $storeNumber = rand(1, $storeCount);
-            $P->click("//div[@name='leftLocation'][$storeNumber]//a[@class='amlocator-link']");
-            $P->wait(5);
-            $P->waitForElementClickable("//button[@class='action-cancel action-cancel-new']", 10);
-            $P->click("//button[@class='action-cancel action-cancel-new']");
-            $P->waitAjaxLoad();
+        $available = true;
+        $storeNumber = 1;
+        while ($available) {
+            try {
+                $P->dontSee('Limited stock available', "//button[@id='product-addtocart-button']/span");
+                $available = false;
+            } catch (Exception $e) {
+                $P->waitForElementClickable("//a[@class = 'product-pages-amlocator-name-action']", 10);
+                $P->click("//a[@class = 'product-pages-amlocator-name-action']");
+                $P->waitAjaxLoad();
+                $storeCount = $this->getElementsCountByCssSelector('a.amlocator-link');
+                $P->click("//div[@name='leftLocation' and not(contains(@class,'selected'))][$storeNumber]//a[@class='amlocator-link']");
+                $P->wait(2);
+                $P->waitForElementClickable("//button[@class='action-cancel action-cancel-new']", 10);
+                $P->click("//button[@class='action-cancel action-cancel-new']");
+                $P->waitAjaxLoad();
+                if ($storeNumber === $storeCount - 1) {
+                    $available = false;
+                }
+                $storeNumber++;
+            }
         }
     }
 
