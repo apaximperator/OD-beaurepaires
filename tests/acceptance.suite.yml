@@ -18,6 +18,8 @@ modules:
         resolution: 1920x1080
         window_size: 1920x1080
         browser: chrome
+        clear_cookies: true
+        restart: true
         capabilities:
 step_decorators:
   - \Codeception\Step\TryTo

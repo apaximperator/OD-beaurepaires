@@ -11,7 +11,6 @@ class ProductTester extends GlobalTester
     public function openRandomProduct()
     {
         $P = $this;
-        $P->reloadPage();
         $P->waitPageLoad(10);
         $P->wait(1);
         $productsCount = $P->getElementsCountByCssSelector('a[class ="result product-item-link"]');
@@ -20,7 +19,6 @@ class ProductTester extends GlobalTester
         $productLink = $P->grabAttributeFrom("//a[@class='result product-item-link' and @data-position='$randomProductNumber']", 'href');
         $productLink = str_replace(Credentials::$URL, '', $productLink);
         $P->wait(2);
-        //TODO Для одного товара не полностью рендориться информация http://joxi.ru/gmvDJMZHd5aP5A
         $P->waitForElementClickable("//a[@class='result product-item-link' and @data-position='$randomProductNumber']", 10);
         $P->click("//a[@class='result product-item-link' and @data-position='$randomProductNumber']");
         $P->waitPageLoad();
@@ -63,11 +61,13 @@ class ProductTester extends GlobalTester
         $P->waitForElementVisible('select#qty', 10);
         $P->seeElement('select#qty');
         $QTYValueCount = $this->getElementsCountByCssSelector('select#qty>option');
-        $QTYValueNumber = rand(1, $QTYValueCount);
+        $QTYValueNumber = rand(1, $QTYValueCount - 1);
         $QTYValue = $P->grabTextFrom('(//select[contains(@id,"qty")])//option[' . $QTYValueNumber . ']'); //Writing variable with desired option
+        if ($QTYValue == 0) {
+            $QTYValue++;
+        }
         $P->selectOption('(//select[contains(@id,"qty")])', $QTYValue); //Select desired option
         $P->wait(1);
-        //TODO Трабла с выбранным количеством $P->see($QTYValue, '//select[@id="qty"]/option[@selected="selected"]');
     }
 
     /**
@@ -97,20 +97,18 @@ class ProductTester extends GlobalTester
     public function addProductToCart()
     {
         $P = $this;
-//        $productCountBefore = $P->executeJS("return jQuery('span.counter-number')[0].innerText");
+        $productCountBefore = $P->executeJS("return jQuery('span.counter-number')[0].innerText");
         $P->waitForElementClickable('#product-addtocart-button', 10);
-        $productTitle = $P->executeJS("return document.querySelector('h1.page-title>span').textContent");
-        //TODO Трабла с выбранным количеством $productQTY = $P->grabTextFrom('//select[@id="qty"]/option[@selected="selected"]');
         $P->click("#product-addtocart-button");
         $P->waitForText('Product Added', 10, '#product-addtocart-button span');
         $P->see('Product Added', '#product-addtocart-button span');
         $P->waitForElementVisible('.booking-panel-tab.active.enabled', 10);
         $P->wait(5);
         $P->waitAjaxLoad();
-//        $productCountAfter = $P->executeJS("return /\(([^)]+)\)/.exec(document.querySelectorAll('.booking-panel-tab.active.enabled')[0].innerText)[1];");
-//        if ((int)$productCountAfter !== (int)$productCountBefore + (int)$productQTY) {
-//            throw new Exception("Cart qty doesn't change $productCountAfter === $productQTY === $productCountBefore");
-//        }
+        $productCountAfter = $P->executeJS("return /\(([^)]+)\)/.exec(document.querySelectorAll('.booking-panel-tab.active.enabled')[0].innerText)[1];");
+        if ((int)$productCountAfter == (int)$productCountBefore) {
+            throw new Exception("Cart qty doesn't change $productCountAfter !== $productCountBefore");
+        }
         $P->clickOnElementByCssSelector('.action-close');
     }
 

@@ -13,14 +13,14 @@ class CategoryTester extends GlobalTester
         $C = $this;
         $brandCategoryWithoutProducts = true;
         while ($brandCategoryWithoutProducts) {
-            $C->moveMouseOver('//a[@id="ui-id-'.rand(2, 3).'"]');
+            $C->moveMouseOver('//a[@id="ui-id-' . rand(2, 3) . '"]');
             $C->waitForElementClickable('li.hover div.brands-logo a');
             $C->wait(2);
             $BrandCategoryCount = $C->getElementsCountByCssSelector('li.hover div.brands-logo a');
             $BrandCategoryNumber = rand(1, $BrandCategoryCount + 1);
-            $BrandLink = $C->grabAttributeFrom('//*[contains(@class, "hover")]//div[@class="brands-item"]['.$BrandCategoryNumber.']//a', 'href');
+            $BrandLink = $C->grabAttributeFrom('//*[contains(@class, "hover")]//div[@class="brands-item"][' . $BrandCategoryNumber . ']//a', 'href');
             $BrandLink = str_replace(Credentials::$URL, '', $BrandLink);
-            $C->click('//*[contains(@class, "hover")]//div[@class="brands-item"]['.$BrandCategoryNumber.']//a');
+            $C->click('//*[contains(@class, "hover")]//div[@class="brands-item"][' . $BrandCategoryNumber . ']//a');
             $C->waitPageLoad();
             $C->seeInCurrentUrl($BrandLink);
             try {
@@ -41,7 +41,7 @@ class CategoryTester extends GlobalTester
         $C->connectJq();
         $categoryWithoutProducts = true;
         while ($categoryWithoutProducts) {
-            $C->click('//a[@id="ui-id-'.rand(2, 3).'"]');
+            $C->click('//a[@id="ui-id-' . rand(2, 3) . '"]');
             $C->waitPageLoad();
             try {
                 $C->seeElement('//div[@class="product actions product-item-actions"]/div/a');
@@ -62,15 +62,18 @@ class CategoryTester extends GlobalTester
         $categoryWithoutProducts = true;
         while ($categoryWithoutProducts) {
             $nav = rand(2, 4);
-            $C->moveMouseOver('//a[@id="ui-id-'.$nav.'"]');
+            $C->moveMouseOver('//a[@id="ui-id-' . $nav . '"]');
             $C->wait(2);
-            if ($nav === 4){
+            if ($nav === 4) {
                 $C->waitForElementClickable('//a[@id="ui-id-4"]');
                 $C->click('//a[@id="ui-id-4"]');
-            }
-            else {
+            } else {
                 $C->waitForElementClickable('//*[contains(@class, "hover")]//div[@class="bottom-links"]//a[contains(text(), "All")]');
                 $C->click('//*[contains(@class, "hover")]//div[@class="bottom-links"]//a[contains(text(), "All")]');
+                $C->waitPageLoad();
+               if ($nav === 2){ //fix recommended tab
+                    $C->click('//div[@class="recommended-tab all-options"]');
+                }
             }
             $C->waitPageLoad();
             $C->wait(2);
@@ -83,23 +86,6 @@ class CategoryTester extends GlobalTester
         }
     }
 
-//    /**
-//     * @param string $selector
-//     */
-//    private function openRandomCategoryBySelector(string $selector)
-//    {
-//        $C = $this;
-//        $C->connectJq();
-//        $C->moveMouseOver("//span[contains(text(),'Women')]/ancestor::a");
-//        $CategoryCount = $C->getElementsCountByCssSelector($selector);
-//        $CategoryNumber = rand(0, $CategoryCount - 1);
-//        $CategoryLink = $C->executeJS('return document.querySelectorAll("' . $selector . '")[' . $CategoryNumber . '].getAttribute("href");');
-//        $CategoryLink = str_replace(Credentials::$URL, '', $CategoryLink);
-//        $C->executeJS('document.querySelectorAll("' . $selector . '")[' . $CategoryNumber . '].click();');
-//        $C->waitPageLoad();
-//        $C->seeInCurrentUrl($CategoryLink);
-//    }
-
     /**
      * @throws Exception
      */
@@ -110,7 +96,7 @@ class CategoryTester extends GlobalTester
         $C->waitForElementVisible('//select[@class="ais-SortBy-select"]', 10);
         $sortCount = $C->getElementsCountByCssSelector('select.ais-SortBy-select>option');
         for ($optionByIndex = 1; $optionByIndex < $sortCount; $optionByIndex++) {
-            $sortByOption = $C->grabTextFrom('//select[@class="ais-SortBy-select"]/option['.$optionByIndex.']');
+            $sortByOption = $C->grabTextFrom('//select[@class="ais-SortBy-select"]/option[' . $optionByIndex . ']');
             $C->selectOption('//select[@class="ais-SortBy-select"]', $sortByOption);
             $C->waitPageLoad();
             $C->wait(1);
@@ -159,23 +145,4 @@ class CategoryTester extends GlobalTester
         $C->waitForElementNotVisible("a.action.clear.filter-clear", 10);
     }
 
-//    /**
-//     *
-//     */
-//    public function openRandomCategoryWithPagination()
-//    {
-//        $C = $this;
-//        $C->connectJq();
-//        $categoryWithoutProducts = true;
-//        while ($categoryWithoutProducts) {
-//            $C->openRandomCategoryBySelector('div>div.menu-column li ul a');
-//            try {
-//                $C->seeElement(".bss-bt-quickview");
-//                $C->seeElement(".pages-item-next a");
-//                $categoryWithoutProducts = false;
-//            } catch (Exception $e) {
-//                $categoryWithoutProducts = true;
-//            }
-//        }
-//    }
 }

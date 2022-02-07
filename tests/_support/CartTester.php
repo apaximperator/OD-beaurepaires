@@ -16,14 +16,13 @@ class CartTester extends GlobalTester
         $Cart->waitForElementVisible("//strong[@class='product-item-name']/a", 10);
         $cartProductQTY = $Cart->grabAttributeFrom('//select[@class="item-qty cart-item-qty minicart-product__qty-input"]', 'data-item-qty');
         $QTYValueCount = $Cart->getElementsCountByCssSelector('select#qty>option');
-        $QTYValueNumber = rand(1, $QTYValueCount);
+        $QTYValueNumber = rand(1, $QTYValueCount - 1);
         $Cart->selectOption('//select[@class="item-qty cart-item-qty minicart-product__qty-input"]', $QTYValueNumber);
         $Cart->waitForElementClickable('//button[@class="update-cart-item minicart-product__update-btn"]', 10);
         $Cart->click('//button[@class="update-cart-item minicart-product__update-btn"]');
         $Cart->wait(3);
         $cartProductQTYNew = $Cart->grabAttributeFrom('//select[@class="item-qty cart-item-qty minicart-product__qty-input"]', 'data-item-qty');
-        $Cart->waitForElementClickable('//button[@class="action-close"]', 10);
-        $Cart->click('//button[@class="action-close"]');
+        $Cart->clickOnElementByCssSelector('.action-close');
         $Cart->wait(3);
         $cartCountAfter = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
         if ((int)($cartCountAfter) !== (int)($productCountBefore - ($cartProductQTY - $cartProductQTYNew))) {
@@ -51,12 +50,11 @@ class CartTester extends GlobalTester
             $Cart->click('//button[@class="action  primary action-accept"]');
             $Cart->waitAjaxLoad();
             $Cart->waitForText("Shop and add tyres, wheels, or a battery to your fitment booking", 10, ".minicart-empty__text");
-            $Cart->waitForElementClickable('//button[@class="action-close"]', 10);
-            $Cart->click('//button[@class="action-close"]');
+            $Cart->clickOnElementByCssSelector('.action-close');
             $Cart->wait(3);
             $cartCountAfter = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
-            if ((int)$cartCountBefore !== (int)$cartCountAfter) {
-                throw new Exception("QTY not correct");
+            if ((int)$cartCountBefore == (int)$cartCountAfter) {
+                throw new Exception("QTY not correct. $cartCountBefore == $cartCountAfter");
             }
         }
     }
@@ -67,22 +65,23 @@ class CartTester extends GlobalTester
     public function removeAllProductsFromMinicart()  //Cycle with 'empty cart' check for remove all products from minicart
     {
         $Cart = $this;
-        $Cart->click('a.showcart');
+        $Cart->waitForElementVisible("//button[@class='action showcart primary blue']", 10);
+        $Cart->click("//button[@class='action showcart primary blue']");
         $cartIsNotEmpty = true; //Creating a variable for an empty cart
         while ($cartIsNotEmpty) { //Start cycle for clear cart
             try {
-                $Cart->dontSee('YOUR CART IS EMPTY', ".subtitle.empty"); //Check that there is no 'YOUR CART IS EMPTY' text
-                $Cart->waitForElementClickable("(//a[@class='action delete'])[last()]"); //Waiting for remove last product button is clickable
-                $Cart->click("(//a[@class='action delete'])[last()]"); //Remove last product button
-                $Cart->waitForElementClickable(".action-primary.action-accept", 10);
-                $Cart->click(".action-primary.action-accept");
+                $Cart->dontSee('Shop and add tyres, wheels, or a battery to your fitment booking', ".minicart-empty__text"); //Check that there is no 'YOUR CART IS EMPTY' text
+                $Cart->waitForElementClickable('(//button[@class="action delete minicart-product__remove-btn"])[last()]', 10);
+                $Cart->click('(//button[@class="action delete minicart-product__remove-btn"])[last()]');
+                $Cart->waitForElementClickable('//button[@class="action  primary action-accept"]', 10);
+                $Cart->click('//button[@class="action  primary action-accept"]');
                 $Cart->waitAjaxLoad();
                 $cartIsNotEmpty = true; //Cart is not empty - false
             } catch (Exception $e) {
                 $cartIsNotEmpty = false; //Cart is not empty - true
             }
         }
-        $Cart->see('YOUR CART IS EMPTY', ".subtitle.empty"); //Check that there is no 'YOUR CART IS EMPTY' text
+        $Cart->see('Shop and add tyres, wheels, or a battery to your fitment booking', ".minicart-empty__text"); //Check that there is no 'YOUR CART IS EMPTY' text
         $Cart->clickOnElementByCssSelector('.action-close');
     }
 

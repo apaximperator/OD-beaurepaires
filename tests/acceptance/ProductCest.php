@@ -11,21 +11,19 @@ class ProductCest
      */
     public function productPage(CategoryTester $C, ProductTester $P, CartTester $Cart, GlobalTester $G)
     {
-//        $C->amOnPage('/');
-        $C->amOnPage('/tyres');
+        $C->amOnPage('/');
         $C->waitPageLoad(10);
-//        $C->closePopup(10);
+        $C->closePopup(10);
         $G->login();
-//        $C->openRandomNotEmptyPLP();
-        $C->amOnPage('/tyres');
+        $C->openRandomNotEmptyPLP();
         $P->openRandomProduct();
-//        $C->waitPageLoad();
-//        $P->selectRandomOption();
-//        $P->selectRandomQTY();
-//        $P->selectRandomStore();
-//        $P->addProductToCart();
-//        $Cart->changeProductQtyOnMiniCart();
-        $Cart->deleteProductFromMiniCart();
+        $C->waitPageLoad();
+        $P->selectRandomOption();
+        $P->selectRandomQTY();
+        $P->selectRandomStore();
+        $P->addProductToCart();
+        $Cart->changeProductQtyOnMiniCart();
+        $Cart->removeAllProductsFromMinicart();
     }
 
 }
