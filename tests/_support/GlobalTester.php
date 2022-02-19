@@ -16,7 +16,6 @@ class GlobalTester extends AcceptanceTester
     public function login(string $firstname = "", string $email = "", string $password = "")
     {
         $G = $this;
-        $G->connectJq();
         if ($email == "") {
             $email = Credentials::$EMAIL;
         }
@@ -48,7 +47,6 @@ class GlobalTester extends AcceptanceTester
     public function logout()
     {
         $G = $this;
-        $G->connectJq();
         $G->waitPageLoad();
         try {
             $G->waitForText("Sing In", 10, 'a[class="nav-link show_popup_login"]');
@@ -90,7 +88,6 @@ class GlobalTester extends AcceptanceTester
         if ($lastname == "") {
             $lastname = Credentials::$LASTNAME;
         }
-        $G->connectJq();
         $G->waitPageLoad();
         $G->waitForText("Sign In", 10, 'a[class="nav-link show_popup_login"]');
         $G->waitForElementClickable('a[class="nav-link show_popup_login"]', 30);

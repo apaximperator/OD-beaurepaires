@@ -11,7 +11,7 @@ class CartTester extends GlobalTester
         $Cart = $this;
         $Cart->waitPageLoad();
         $productCountBefore = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
-        $Cart->waitForElementVisible("//button[@class='action showcart primary blue']", 10);
+        $Cart->waitForElementClickable("//button[@class='action showcart primary blue']", 10);
         $Cart->click("//button[@class='action showcart primary blue']");
         $Cart->waitForElementVisible("//strong[@class='product-item-name']/a", 10);
         $cartProductQTY = $Cart->grabAttributeFrom('//select[@class="item-qty cart-item-qty minicart-product__qty-input"]', 'data-item-qty');
@@ -38,7 +38,7 @@ class CartTester extends GlobalTester
         $Cart = $this;
         $Cart->waitPageLoad();
         $cartCountBefore = $Cart->executeJS("return jQuery('span.counter-number')[0].innerText");
-        $Cart->waitForElementVisible("//button[@class='action showcart primary blue']", 10);
+        $Cart->waitForElementClickable("//button[@class='action showcart primary blue']", 10);
         $Cart->click("//button[@class='action showcart primary blue']");
         try {
             $Cart->see("Shop and add tyres, wheels, or a battery to your fitment booking", ".minicart-empty__text");
@@ -65,8 +65,9 @@ class CartTester extends GlobalTester
     public function removeAllProductsFromMinicart()  //Cycle with 'empty cart' check for remove all products from minicart
     {
         $Cart = $this;
-        $Cart->waitForElementVisible("//button[@class='action showcart primary blue']", 10);
+        $Cart->waitForElementClickable("//button[@class='action showcart primary blue']", 10);
         $Cart->click("//button[@class='action showcart primary blue']");
+        $Cart->executeJS("document.querySelector('[class=\"booking-panel-tab__icon booking-panel-tab__icon--items\"]').click()");
         $cartIsNotEmpty = true; //Creating a variable for an empty cart
         while ($cartIsNotEmpty) { //Start cycle for clear cart
             try {
