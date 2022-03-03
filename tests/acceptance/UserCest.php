@@ -9,6 +9,8 @@ class UserCest
     public function userLogin(GlobalTester $G)
     {
         $G->amOnPage('/');
+        $G->waitPageLoad();
+        $G->closePopup();
         $G->login();
         $G->logout();
     }
@@ -20,6 +22,8 @@ class UserCest
     public function userRegister(GlobalTester $G)
     {
         $G->amOnPage('/');
+        $G->waitPageLoad();
+        $G->closePopup();
         $user = $G->registration();
         $G->login($user['firstname'], $user['email'], $user['password']);
         $G->logout();
@@ -32,6 +36,7 @@ class UserCest
     public function editUserData(GlobalTester $G)
     {
         $G->amOnPage('/');
+        $G->waitPageLoad();
         $G->closePopup();
         $user = $G->registration();
         $G->login($user['firstname'], $user['email'], $user['password']);

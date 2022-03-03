@@ -16,6 +16,7 @@ class ProductCest
         $C->waitPageLoad(10);
         $C->closePopup(10);
         $G->login();
+        $Cart->removeAllProductsFromMinicart();
         $C->openRandomNotEmptyPLP();
         $P->openRandomProduct();
         $C->waitPageLoad();
@@ -23,7 +24,6 @@ class ProductCest
         $P->selectRandomQTY();
         $P->selectRandomStore();
         $P->addProductToCart();
-        $Cart->changeProductQtyOnMiniCart();
         $Cart->removeAllProductsFromMinicart();
     }
 

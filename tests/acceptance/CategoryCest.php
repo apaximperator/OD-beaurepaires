@@ -10,8 +10,9 @@ class CategoryCest
     public function filtersAndSort(CategoryTester $C)
     {
         $C->amOnPage('/');
-        $C->closePopup();
         $C->waitPageLoad(10);
+        $C->closePopup();
+        $C->login();
         $C->openRandomNotEmptyPLP();
         $C->selectRandomFilter();
         $C->sortBySelect();

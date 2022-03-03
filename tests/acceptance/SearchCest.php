@@ -13,6 +13,7 @@ class SearchCest
         $G->amOnPage("/");
         $G->waitPageLoad();
         $G->closePopup();
+        $G->login();
         $C->openRandomNotEmptyPLP();
         $G->waitPageLoad(10);
         $productsCount = $G->getElementsCountByCssSelector('a[class ="result product-item-link"]');
@@ -38,6 +39,7 @@ class SearchCest
         $G->amOnPage("/");
         $G->waitPageLoad();
         $G->closePopup();
+        $G->login();
         $C->openRandomNotEmptyPLP();
         $G->waitPageLoad(10);
         $productsCount = $G->getElementsCountByCssSelector('a[class ="result product-item-link"]');

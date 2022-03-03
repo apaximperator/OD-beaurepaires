@@ -11,17 +11,18 @@ class CategoryTester extends GlobalTester
     public function openRandomNotEmptyPLP()
     {
         $C = $this;
-        $C->connectJq();
+        $C->waitPageLoad();
         $categoryWithoutProducts = true;
         while ($categoryWithoutProducts) {
             $nav = rand(2, 4);
+            $C->wait(1);
             $C->moveMouseOver('//a[@id="ui-id-' . $nav . '"]');
             $C->wait(2);
             if ($nav === 4) {
                 $C->waitForElementClickable('//a[@id="ui-id-4"]');
                 $C->click('//a[@id="ui-id-4"]');
             } else {
-                $C->waitForElementClickable('//*[contains(@class, "hover")]//div[@class="bottom-links"]//a[contains(text(), "All")]');
+                $C->waitForElementClickable('//*[contains(@class, "hover")]//div[@class="bottom-links"]//a[contains(text(), "All")]', 10);
                 $C->click('//*[contains(@class, "hover")]//div[@class="bottom-links"]//a[contains(text(), "All")]');
                 $C->waitPageLoad();
                 if ($nav === 2) { //fix recommended tab
@@ -45,7 +46,6 @@ class CategoryTester extends GlobalTester
     public function sortBySelect()
     {
         $C = $this;
-        $C->connectJq();
         $C->waitForElementVisible('//select[@class="ais-SortBy-select"]', 10);
         $sortCount = $C->getElementsCountByCssSelector('select.ais-SortBy-select>option');
         for ($optionByIndex = 1; $optionByIndex < $sortCount; $optionByIndex++) {
