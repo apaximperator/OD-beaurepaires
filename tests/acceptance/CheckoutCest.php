@@ -16,14 +16,14 @@ class CheckoutCest
         $G->waitPageLoad();
         $G->closePopup();
         $G->login();
-//        $Cart->removeAllProductsFromMinicart();
-//        $C->openRandomNotEmptyPLP();
-//        $P->openRandomProduct();
-//        $C->waitPageLoad();
-//        $P->selectRandomOption();
-//        $P->selectRandomQTY();
-//        $P->selectRandomStore();
-//        $P->addProductToCart();
+        $Cart->removeAllProductsFromMinicart();
+        $C->openRandomNotEmptyPLP();
+        $P->openRandomProduct();
+        $C->waitPageLoad();
+        $P->selectRandomOption();
+        $P->selectRandomQTY();
+        $P->selectRandomStore();
+        $P->addProductToCart();
         $Ch->goToCheckout();
         $Ch->paymentMethodByArgument('zipmoneypayment');
     }

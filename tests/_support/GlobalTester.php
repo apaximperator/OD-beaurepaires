@@ -70,7 +70,7 @@ class GlobalTester extends AcceptanceTester
      * @param string $lastname
      * @param string $email
      * @param string $password
-     * @return array(str, str, str)
+     * @return array
      * @throws Exception
      */
     public function registration(string $firstname = '', string $lastname = '', string $email = '', string $password = ''): array
@@ -105,7 +105,7 @@ class GlobalTester extends AcceptanceTester
         $G->click('//button[@class = "action submit primary"]');
         $G->waitAjaxLoad();
         $G->waitForText("My Account", 10, 'a[class="nav-link show_popup_login"]');
-        return ['firstname' => $firstname, 'email' => $email, 'password' => $password];
+        return ['firstname' => $firstname, 'email' => $email, 'password' => $password, 'lastname' => $lastname];
     }
 
     /**

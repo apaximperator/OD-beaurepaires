@@ -7,6 +7,7 @@ class ProductCest
      * @param CategoryTester $C
      * @param ProductTester $P
      * @param CartTester $Cart
+     * @param GlobalTester $G
      * @throws Exception
      */
     public function productPage(CategoryTester $C, ProductTester $P, CartTester $Cart, GlobalTester $G)
